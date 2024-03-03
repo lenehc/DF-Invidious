@@ -1,0 +1,114 @@
+body, a, p, i, div, h1, h2, h3, h4, h5, h6 {
+    font-family: helvetica !important;
+    color: black !important;
+    font-weight: normal !important;
+    font-size: 12px !important;
+}
+a {
+    cursor: pointer;
+}
+.channel-card-name {
+    justify-content: center !important;
+}
+.channel-handle, .channel-subscribers {
+    text-align: center;
+}
+.light-theme a:active {
+    box-shadow: none !important;
+}
+.light-theme a:hover, .pure-button.pure-button-secondary:hover, .light-theme a:active {
+    color: rgba(0, 0, 0, 0.75) !important;
+}
+.searchbar input[type="search"]:focus {
+    border: 1px solid !important;
+    border-color: rgba(0,0,0,0) !important;
+    border-bottom: 1px solid !important;
+    margin: 1px !important;
+}
+.channel-name, p {
+    color: inherit !important;
+}
+.pure-u-1.pure-u-md-1-4 {
+    height: 350px;
+}
+.video-title {
+    height: 40px;
+}
+.video-channel {
+    height: 18px;
+}
+.navbar {
+    margin-bottom: 100px !important;
+}
+.length {
+    all: unset;
+    color: white !important;
+}
+.icon-buttons, .ion-ios-arrow-forward, footer, #filters, #toggle_theme, .feed-menu, .navbar .pure-u-1-3:nth-child(3), hr, .pure-u-lg-1-5, #published-date, #comments {
+    display: none !important;
+}
+.pure-button.pure-button-secondary {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+}
+.pure-button.pure-button-secondary:hover {
+    background-image: none !important;
+    background-color: transparent !important;
+}
+.light-theme .pure-button.pure-button-secondary:focus {
+    background-color: transparent !important;
+    color: black !important;
+    border-color: transparent !important;
+    background-image: none !important;
+}
+.channel-bio, .channel-title, .channel-banner, .video-info, .player-title {
+    margin-bottom: 25px;
+}
+.channel-links {
+    margin-bottom: 100px;
+}
+.channel-profile > * {
+    font-size: inherit !important;
+    font-weight: normal !important;
+}
+.channel-profile > img {
+    margin-right: 10px;
+}
+.video-published:before {
+    content: "•";
+    margin: 0 4px;
+}
+.pure-u-1.pure-u-md-4-5, .pure-u-1.pure-u-lg-3-5 {
+    width: 50% !important;
+    margin-bottom: 100px;
+}
+#descriptionWrapper {
+    margin-bottom: 10px;
+}
+#player * {
+    color: white !important;
+    font-size: 10px;
+}
+.vjs-control-bar {
+    height: 30px !important;
+}
+.vjs-icon-placeholder, .vjs-icon-share::before, .vjs-play-progress::before {
+    font-family: 'VideoJS' !important;
+}
+.vjs-time-control, .vjs-playback-rate-value, .vjs-icon-share::before {
+    line-height: 2.65em !important;
+}
+.vjs-big-play-button {
+    height: 44px !important;
+    width: 75px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    top: calc(50% - 37.5px) !important;
+    left: calc(50% - 22px) !important;
+}
+.vjs-icon-placeholder::before {
+    font-size: 3em;
+    line-height: 1.5em;
+}

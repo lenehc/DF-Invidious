@@ -1,0 +1,50 @@
+{
+  "manifest_version": 2,
+  "name": "DF Invidious",
+  "version": "1.0",
+  "description": "Distraction free Invidious.",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://anontube.lvkaszus.pl/*",
+        "*://inv.citw.lgbt/*",
+        "*://inv.in.projectsegfau.lt/*",
+        "*://inv.tux.pizza/*",
+        "*://inv.us.projectsegfau.lt/*",
+        "*://inv.zzls.xyz/*",
+        "*://invidious.asir.dev/*",
+        "*://invidious.drgns.space/*",
+        "*://invidious.einfachzocken.eu/*",
+        "*://invidious.fdn.fr/*",
+        "*://invidious.io.lol/*",
+        "*://invidious.lunar.icu/*",
+        "*://invidious.nerdvpn.de/*",
+        "*://invidious.no-logs.com/*",
+        "*://invidious.perennialte.ch/*",
+        "*://invidious.privacydev.net/*",
+        "*://invidious.private.coffee/*",
+        "*://invidious.projectsegfau.lt/*",
+        "*://invidious.protokolla.fi/*",
+        "*://invidious.slipfox.xyz/*",
+        "*://iv.datura.network/*",
+        "*://iv.ggtyler.dev/*",
+        "*://iv.melmac.space/*",
+        "*://iv.nboeck.de/*",
+        "*://vid.priv.au/*",
+        "*://vid.puffyan.us/*",
+        "*://yewtu.be/*",
+        "*://yt.artemislena.eu/*",
+        "*://yt.cdaut.de/*",
+        "*://yt.drgnz.club/*",
+        "*://yt.oelrichsgarcia.de/*"
+      ],
+      "js": ["df_invidious.js"]
+    }
+  ],
+  "permissions": [
+    "storage"
+  ],
+  "options_ui": {
+    "page": "options.html"
+  }
+}
