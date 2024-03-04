@@ -62,17 +62,81 @@ async function dfInvidious() {
         }
     }
 
+    function deletePageContents() {
+        Array.from(document.getElementById('contents').children).forEach(elem => {
+            if (!elem.classList.contains('navbar')) {
+                elem.remove()
+            }
+        });
+    }
+
+    function shorten(text, size) {
+        return text.length > size ? text.slice(0, size).trim() + '…' : text;
+    }
+
+    function showMessage(message) {
+        deletePageContents();
+        let elem = document.getElementById('page-message');
+        elem = elem ? elem : document.createElement('span');
+        elem.setAttribute('id', 'page-message');
+        elem.textContent = message;
+        document.getElementById('contents').appendChild(elem);
+    }
+
+    function pageIsBlocked(name) {
+        showMessage(`"${shorten(name, 50)}" is blocked`);
+    }
+
+    async function addFilter(filterName, filter) {
+        let res = await browser.storage.local.get();
+        if (!res.filters[filterName].includes(filter)) {
+            res.filters[filterName].push(filter);
+        }
+        browser.storage.local.set(res);
+    }
+
+    function createBlockButton(elem, card, channelName) {
+        let blockButton = document.createElement('button');
+        blockButton.setAttribute('class', 'block-channel-button');
+        blockButton.textContent = '[x]';
+        blockButton.style.display = 'none';
+        blockButton.title = 'Block channel';
+        blockButton.addEventListener('click', async () => {
+            await addFilter('channelName', channelName);
+            filterCards(extractCards());
+
+            const filterAddeddEvent = new CustomEvent('dfInvidiousFilterAdded');
+            document.dispatchEvent(filterAddeddEvent);
+        })
+
+        elem.appendChild(blockButton);
+        elem.addEventListener('mouseover', () => {
+            blockButton.style.display = 'block';
+        });
+        elem.addEventListener('mouseout', () => {
+            blockButton.style.display = 'none';
+        });
+    }
+
     function processSearchPage() {
         processPageNav();
-        processItemCards();
+        processCards();
     }
 
     function processChannelPage() {
+        let channelName = document.querySelector('.channel-profile span').textContent;
+        let channelId = window.location.pathname.split('/channel/')[1];
+
+        if (isBlockedChannel(channelName, channelId)) {
+            pageIsBlocked(channelName);
+            return 
+        } 
+
         let [nav, banner, _, title, bio, links] = document.querySelector('#contents').children;
         let hiddenLinks = ['Switch Invidious Instance', 'View channel on YouTube', 'Shorts', 'Community']
 
         processPageNav();
-        processItemCards(true);
+        processCards(true);
 
         banner.classList.add('channel-banner');
         title.classList.add('channel-title');
@@ -94,8 +158,16 @@ async function dfInvidious() {
 
     function processVideoPage() {
         let [navbar, _, player, title] = document.querySelector('#contents').children;
-
         let channelTitle = document.querySelector('.title');
+
+        let videoTitle = title.querySelector('h1').textContent.trim();
+        let channelName = channelTitle.querySelector('#channel-name').textContent.trim();
+        let channelId = channelTitle.querySelector('.flex-left').querySelector('a').href.split('/channel/')[1];
+
+        if (isBlockedVideo(videoTitle) || isBlockedChannel(channelName, channelId)) {
+            pageIsBlocked(videoTitle);
+            return 
+        } 
 
         title.classList.add('player-title');
         channelTitle.classList.add('channel-title');
@@ -131,13 +203,75 @@ async function dfInvidious() {
 
     }
 
-    function processItemCards(isChannelPage) {
-        document.querySelectorAll('.pure-u-1.pure-u-md-1-4').forEach(card => {
+    function extractChannelInfo(card) {
+        let channelName = card.querySelector('a .channel-name').textContent.trim();
+        let channelId = card.querySelector('a[href^="/channel/"]').href.split('/channel/')[1];
+
+        return {channelName: channelName, channelId: channelId}
+    }
+
+    function extractCards() {
+        cards = document.querySelectorAll('.pure-u-1.pure-u-md-1-4');
+        cardObjs = []
+        cards.forEach(card => {
             if (card.querySelector('.thumbnail')) {
-                processVideoCard(card, isChannelPage);
+                let title = card.querySelector('.video-card-row').textContent.trim()
+                let {channelName, channelId} = extractChannelInfo(card);
+
+                cardObjs.push({
+                    type: 'video',
+                    title: title,
+                    channelName: channelName,
+                    channelId: channelId,
+                    cardElem: card
+                });
             }
             else {
-                processChannelCard(card);
+                let {channelName, channelId} = extractChannelInfo(card);
+
+                cardObjs.push({
+                    type: 'channel',
+                    channelName: channelName,
+                    channelId: channelId,
+                    cardElem: card
+                });
+            }
+
+        })
+        return cardObjs
+    }
+
+    async function getFilters() {
+        let res = await browser.storage.local.get()
+        return res.filters
+    }
+
+    async function filterCards(cardObjs) {
+        let filters = await getFilters()
+        filteredItemsCount = 0;
+        cardObjs.forEach(cardObj => {
+            if (isBlockedChannel(filters, cardObj.channelName, cardObj.channelId) || (cardObj.type === 'video' && isBlockedVideo(filters,cardObj.title))) {
+                cardObj.cardElem.style.display = 'none';
+                filteredItemsCount++
+            }
+        })
+        return filteredItemsCount
+    }
+
+    function processCards(isChannelPage) {
+        cardObjs = extractCards();
+        filteredItemsCount = filterCards(cardObjs);
+
+        if (filteredItemsCount === cards.length) {
+            showMessage('No results');
+        }
+
+        cardObjs.forEach(cardObj => {
+            if (cardObj.type === 'video') {
+                processVideoCard(cardObj.cardElem, isChannelPage)
+            }
+            else if (cardObj.type === 'channel') {
+                processChannelCard(cardObj.cardElem)
             }
         })
     }
@@ -149,31 +283,29 @@ async function dfInvidious() {
         let [_, channel, username, subscribers] = hBox.children;
         let [subCount, subString] = subscribers.innerHTML.split(' ');
 
-        let channelName = card.querySelector('.channel-name').innerHTML;
-        let channelId = channel.querySelector('div > a').href.split('/channel/')[1];
+        let {channelName, channelId} = extractChannelInfo(card);
 
-        if (isBlockedChannel(channelName, channelId)) {
-            card.style.display = 'none';
-        }
+        let channelNameElem = channel.querySelector('.flex-left')
+        channelNameElem.classList.add('channel-card-name');
 
-        subscribers.innerHTML = formatCount(subCount) + ' ' + subString;
+        createBlockButton(channelNameElem, card, channelName);
 
-        channel.querySelector('.flex-left').classList.add('channel-card-name');
+        if (subCount.includes(',')) {
+            subscribers.innerHTML = formatCount(subCount) + ' ' + subString;
+        };
+
         username.classList.add('channel-handle');
         subscribers.classList.add('channel-subscribers');
+        return true
     }
 
     function processVideoCard(card, isChannelPage) {
         let [title, channel] = card.querySelectorAll('.video-card-row');
         let [published] = card.querySelectorAll('.video-data');
 
-        let channelName = card.querySelector('.channel-name').innerHTML;
-        let channelId = channel.querySelector('div > a').href.split('/channel/')[1];
-        let videoTitle = title.querySelector('p');
+        let {channelName, _} = extractChannelInfo(card);
 
-        if (isBlockedChannel(channelName, channelId) || isBlockedVideo(videoTitle)) {
-            card.style.display = 'none';
-        }
+        createBlockButton(channel.querySelector('.flex-left'), card, channelName);
 
         title.classList.add('video-title');
         channel.classList.add('video-channel');
@@ -184,16 +316,16 @@ async function dfInvidious() {
         }
     }
 
-    function isBlockedChannel(channelName, channelId) {
-        if (storage.filters) {
-            return testFilters(channelName, storage.filters.channelName) || testFilters(channelId, storage.filters.channelId)
+    function isBlockedChannel(filters, channelName, channelId) {
+        if (filters) {
+            return testFilters(channelName, filters.channelName) || testFilters(channelId, filters.channelId)
         }
         return false
     }
 
-    function isBlockedVideo(videoName) {
-        if (storage.filters) {
-            return testFilters(videoName, storage.filters.videoName)
+    function isBlockedVideo(filters, videoTitle) {
+        if (filters) {
+            return testFilters(videoTitle, filters.videoTitle)
         }
         return false
     }
@@ -201,12 +333,13 @@ async function dfInvidious() {
     function testFilters(text, filters) {
         for (const f of filters) {
             try {
-                let reg = new RegExp(f);
-                return reg.test(text);
+                if (new RegExp(f).test(text)) {
+                    return true
+                }
             } catch {
-                return false;
             }
         }
+        return false;
     }
 }
 

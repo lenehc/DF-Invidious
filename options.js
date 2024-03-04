@@ -11,7 +11,6 @@ async function init() {
         if (!res.filters[form.id]) {
             res.filters[form.id] = [];
         }
-        form.addEventListener('keyup', () => saveForm(form.id));
         restoreForm(form);
     });
 
@@ -22,7 +21,20 @@ async function init() {
 
     filterOptions.addEventListener('change', () => {
         showForm(filterOptions.value);
+    });
+
+    document.getElementById('save').addEventListener('click', () => {
+        document.querySelectorAll('textarea').forEach(async (form) => {
+            await saveForm(form.id);
+            restoreForm(form);
+        });
     })
+
+    //browser.storage.local.onChanged.addListener(() => {
+    //    document.querySelectorAll('textarea').forEach(form => {
+    //        restoreForm(form);
+    //    });
+    //});
 }
 
 function getStorage() {
@@ -30,18 +42,19 @@ function getStorage() {
 }
 
 function setStorage(data) {
-    browser.storage.local.set(data);
+    return browser.storage.local.set(data);
 }
 
 async function setFilter(filterName, filters) {
     let res = await getStorage();
-    res.filters[filterName] = filters;
-    setStorage(res);
+    res.filters[filterName] = filters.filter(x => x !== '');
+    await setStorage(res);
 }
 
 async function saveForm(filterName) {
+    savedFilters = await getStorage().filters[filterName]
     let filters = document.getElementById(filterName).value.replace(/^\s*[\r\n]/gm, '').split('\n');
-    setFilter(filterName, filters);
+    await setFilter(filterName, [...savedFilters, ...filters]);
 };
 
 async function restoreForm(filterForm) {
@@ -53,5 +66,7 @@ function showForm(filter) {
     document.querySelectorAll('textarea').forEach(form => {
         form.style.display = 'none';
     });
-    document.getElementById(filter).style.display = 'block';
+    form = document.getElementById(filter);
+    restoreForm(form);
+    form.style.display = 'block';
 }

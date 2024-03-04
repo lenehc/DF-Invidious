@@ -112,3 +112,16 @@ a {
     font-size: 3em;
     line-height: 1.5em;
 }
+#page-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.block-channel-button {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0 5px;
+    cursor: pointer;
+}
