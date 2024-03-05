@@ -1,72 +1,131 @@
-init();
-
-async function init() {
-    let res = await getStorage();
-
-    if (!res.filters) {
-        res.filters = {}
+(async function() {
+    let storageData = {
+        filterData: {
+            videoTitle: [],
+            channelName: [],
+            channelId: []
+        }
     }
 
-    document.querySelectorAll('textarea').forEach(form => {
-        if (!res.filters[form.id]) {
-            res.filters[form.id] = [];
-        }
-        restoreForm(form);
-    });
-
-    setStorage(res);
-
-    let filterOptions = document.querySelector('#filterOptions');
-    showForm(filterOptions.value);
-
-    filterOptions.addEventListener('change', () => {
-        showForm(filterOptions.value);
-    });
-
-    document.getElementById('save').addEventListener('click', () => {
-        document.querySelectorAll('textarea').forEach(async (form) => {
-            await saveForm(form.id);
-            restoreForm(form);
-        });
+    const filterNames = ['videoTitle', 'channelName', 'channelId'];
+    const filterEditors = {};
+    filterNames.forEach((filterName) => {
+        filterEditors[filterName] = document.getElementById(filterName);
     })
 
-    //browser.storage.local.onChanged.addListener(() => {
-    //    document.querySelectorAll('textarea').forEach(form => {
-    //        restoreForm(form);
-    //    });
-    //});
-}
+    await loadData();
+    populateOptions();
 
-function getStorage() {
-    return browser.storage.local.get();
-}
+    async function loadData() {
+        let data = await browser.storage.local.get();
+        if (Object.keys(data).length > 0) {
+            storageData = data;
+        }
+    }
 
-function setStorage(data) {
-    return browser.storage.local.set(data);
-}
+    function saveData() {
+        return browser.storage.local.set(storageData);
+    }
 
-async function setFilter(filterName, filters) {
-    let res = await getStorage();
-    res.filters[filterName] = filters.filter(x => x !== '');
-    await setStorage(res);
-}
+    function get(path, def = undefined, obj = undefined) {
+        const paths = (path instanceof Array) ? path : path.split('.');
+        let nextObj = obj || storageData;
 
-async function saveForm(filterName) {
-    savedFilters = await getStorage().filters[filterName]
-    let filters = document.getElementById(filterName).value.replace(/^\s*[\r\n]/gm, '').split('\n');
-    await setFilter(filterName, [...savedFilters, ...filters]);
-};
+        const exist = paths.every((v) => {
+            if (!nextObj || !nextObj.hasOwnProperty(v)) return false;
+            nextObj = nextObj[v];
+            return true;
+        });
 
-async function restoreForm(filterForm) {
-    let res = await getStorage();
-    filterForm.value = res.filters[filterForm.id] ? res.filters[filterForm.id].join('\n') : '';
-};
+        return exist ? nextObj : def;
+    }
 
-function showForm(filter) {
-    document.querySelectorAll('textarea').forEach(form => {
-        form.style.display = 'none';
+    function multilineToArray(text) {
+        return text.replace(/\r\n/g, '\n').split('\n').map((x) => x.trim());
+    }
+
+    async function saveOptions() {
+        document.getElementById('save').classList.add('disabled');
+
+        filterNames.forEach((filterName) => {
+            storageData.filterData[filterName] = multilineToArray(filterEditors[filterName].value);
+        });
+        await saveData();
+    }
+
+    function importOptions(evt) {
+        const files = evt.target.files;
+        const f = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            let json;
+            try {
+                json = JSON.parse(e.target.result);
+                if (json.filterData) {
+                    populateOptions(json);
+                    saveOptions();
+                }
+            } catch (ex) {
+                alert('Invalid options');
+            }
+        };
+        reader.readAsText(f);
+    }
+
+    function populateOptions(obj = undefined) {
+        filterNames.forEach((filterName) => {
+            const content = get(`filterData.${filterName}`, [], obj);
+            filterEditors[filterName].value = content.join('\n');
+        });
+    }
+
+    let filterOptions = document.querySelector('#filterOptions');
+    showFilterEditor(filterOptions.value);
+
+    filterOptions.addEventListener('change', () => {
+        showFilterEditor(filterOptions.value);
     });
-    form = document.getElementById(filter);
-    restoreForm(form);
-    form.style.display = 'block';
-}
+
+    document.getElementById('save').addEventListener('click', (evt) => {
+        if (evt.target.classList.contains('disabled')) return;
+        saveOptions();
+    })
+
+
+    document.querySelectorAll('textarea').forEach((elem) => {
+        elem.addEventListener('change', () => {
+            document.getElementById('save').classList.remove('disabled');
+        })
+    })
+
+    function showFilterEditor(filterName) {
+        Object.values(filterEditors).forEach((filterEditor) => {
+            filterEditor.style.display = 'none';
+        });
+        document.getElementById(filterName).style.display = 'block';
+    }
+
+    function saveFile(data, fileName) {
+        const a = document.createElement('a');
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'octet/stream' });
+        const url = URL.createObjectURL(blob);
+        setTimeout(() => {
+            a.href = url;
+            a.download = fileName;
+            const event = new MouseEvent('click');
+            a.dispatchEvent(event);
+        }, 0);
+    }
+
+    document.getElementById('export').addEventListener('click', () => {
+        saveFile(storageData, 'df_invidious_options.json');
+    })
+
+    document.getElementById('import').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+    })
+    
+    document.getElementById('importFile').addEventListener('change', importOptions);
+
+})();
