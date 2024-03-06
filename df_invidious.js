@@ -4,13 +4,25 @@
             videoTitle: [],
             channelName: [],
             channelId: []
+        },
+        options: {
+            blockedChannelLinks: []
         }
     }
 
-    let pathRegExpToFuncs = {
-        'search': [processSearchPage],
+    let pathRegExpToFunc = {
+        'search': [processPage],
         'channel': [processChannelPage],
-        'watch': [processVideoPage]
+        'watch': [processVideoPage],
+        'playlist\/?': [processPage, processPlaylistPage]
+    }
+
+    let pathToLinkName = {
+        'shorts': 'Shorts',
+        'community': 'Community',
+        'streams': 'Livestreams',
+        'playlists': 'Playlists',
+        'releases': 'Releases'
     }
 
     document.body.setAttribute('class', 'light-theme');
@@ -18,7 +30,7 @@
     await loadData();
     addCss('df_invidious.css');
 
-    for (const [pathRegExp, funcs] of Object.entries(pathRegExpToFuncs)) {
+    for (const [pathRegExp, funcs] of Object.entries(pathRegExpToFunc)) {
         if (new RegExp(pathRegExp).test(window.location.pathname)) {
             funcs.forEach((func) => func());
         }
@@ -97,6 +109,7 @@
         let elem = document.getElementById('page-message');
         elem = elem ? elem : document.createElement('span');
         elem.setAttribute('id', 'page-message');
+        elem.style.display = 'block';
         elem.textContent = message;
         document.getElementById('contents').appendChild(elem);
     }
@@ -130,12 +143,58 @@
         });
     }
 
-    function processSearchPage() {
+    function processPage() {
         processPageNav();
         processCards();
     }
 
+    function processPlaylistPage() {
+        hide('.title .button-container');
+
+        let title = document.querySelector('.title');
+        let playlistInfo = title.nextElementSibling;
+
+        title.classList.add('playlist-title');
+
+        let playlistTitle = title.querySelector('h3');
+        let channelLink = playlistInfo.querySelector('a');
+        let rawInfo = playlistInfo.querySelector('b').textContent;
+
+        let videoCount = rawInfo.match(/\b(.+)videos\b/);
+        let updated = rawInfo.match(/Updated(.+)/);
+
+        videoCount = videoCount ? videoCount[0].trim() : '';
+        updated = updated ? updated[0].trim() : '';
+
+        playlistTitle.innerHTML = `"${playlistTitle.textContent}" by `;
+
+        let sep = document.createElement('span');
+        sep.classList.add('sep');
+
+        playlistTitle.append(
+            channelLink,
+            sep,
+            document.createTextNode(videoCount),
+            sep.cloneNode(),
+            document.createTextNode(updated),
+        )
+
+        playlistInfo.remove();
+    }
+
     function processChannelPage() {
+        let currentPage = window.location.pathname.match(/\/channel\/([^/]+)\/([^/]+)/);
+        currentPage = currentPage ? currentPage[2] : '';
+
+        let hiddenLinks = get('options.blockedChannelLinks');
+
+        let linkName = pathToLinkName[currentPage];
+
+        if (hiddenLinks.includes(linkName)) {
+            pageIsBlocked(linkName);
+            return
+        }
+
         let channelName = document.querySelector('.channel-profile span').textContent;
         let channelId = window.location.pathname.split('/channel/')[1];
 
@@ -150,10 +209,9 @@
         let bio = document.getElementById('descriptionWrapper').parentElement;
         let links = bio.nextElementSibling;
 
-        let hiddenLinks = ['Switch Invidious Instance', 'View channel on YouTube', 'Shorts', 'Community'];
-
         processPageNav();
-        processCards(true);
+
+        if (currentPage !== 'community') processCards(true);
 
         if (banner) banner.classList.add('channel-banner');
         title.classList.add('channel-title');
@@ -174,6 +232,8 @@
     }
 
     function processVideoPage() {
+        hide('#comments');
+
         let title = document.querySelector('.h-box > h1').parentElement;
         let channelTitle = document.querySelector('.title');
 
@@ -274,6 +334,7 @@
 
         if (filteredItemsCount === cards.length) {
             showMessage('No results');
+            return
         }
 
         cardObjs.forEach((cardObj) => {
@@ -311,7 +372,7 @@
 
     function processVideoCard(card, isChannelPage = false) {
         let [title, channel] = card.querySelectorAll('.video-card-row');
-        let [published] = card.querySelectorAll('.video-data');
+        let published = card.querySelector('.video-data');
 
         let {channelName, _} = extractChannelInfo(card);
 
@@ -319,7 +380,7 @@
 
         title.classList.add('video-title');
         channel.classList.add('video-channel');
-        published.textContent = published.textContent.replace('Shared ', '');
+        if (published) published.textContent = published.textContent.replace('Shared ', '');
 
         if (isChannelPage) {
             channel.style.display = 'none';

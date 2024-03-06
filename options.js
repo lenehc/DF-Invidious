@@ -4,17 +4,28 @@
             videoTitle: [],
             channelName: [],
             channelId: []
+        },
+        options: {
+            blockedChannelLinks: []
         }
     }
 
     const filterNames = ['videoTitle', 'channelName', 'channelId'];
-    const filterEditors = {};
-    filterNames.forEach((filterName) => {
-        filterEditors[filterName] = document.getElementById(filterName);
-    })
+    const channelLinks = ['viewChannelOnYoutube', 'switchInvidiousInstance', 'shorts', 'community', 'livestreams', 'playlists', 'releases'];
+
+    const filterEditors = getElementsFromIds(filterNames);
+    const channelLinkCheckboxes = getElementsFromIds(channelLinks);
 
     await loadData();
     populateOptions();
+
+    function getElementsFromIds(ids) {
+        elems = {};
+        ids.forEach((id) => {
+            elems[id] = document.getElementById(id);
+        });
+        return elems
+    }
 
     async function loadData() {
         let data = await browser.storage.local.get();
@@ -50,6 +61,9 @@
         filterNames.forEach((filterName) => {
             storageData.filterData[filterName] = multilineToArray(filterEditors[filterName].value);
         });
+
+        storageData.options.blockedChannelLinks = Array.from(document.getElementById('blockedChannelLinks').querySelectorAll('input[type=checkbox]:checked')).map(e => e.value);
+
         await saveData();
     }
 
@@ -62,7 +76,7 @@
             let json;
             try {
                 json = JSON.parse(e.target.result);
-                if (json.filterData) {
+                if (json.filterData && json.options) {
                     populateOptions(json);
                     saveOptions();
                 }
@@ -77,6 +91,12 @@
         filterNames.forEach((filterName) => {
             const content = get(`filterData.${filterName}`, [], obj);
             filterEditors[filterName].value = content.join('\n');
+        });
+
+        blockedChannelLinks = get('options.blockedChannelLinks', [], obj);
+
+        Object.values(channelLinkCheckboxes).forEach((elem) => {
+            elem.checked = blockedChannelLinks.includes(elem.value);
         });
     }
 
@@ -93,7 +113,7 @@
     })
 
 
-    document.querySelectorAll('textarea').forEach((elem) => {
+    document.querySelectorAll('textarea, input[type=checkbox]').forEach((elem) => {
         elem.addEventListener('change', () => {
             document.getElementById('save').classList.remove('disabled');
         })
