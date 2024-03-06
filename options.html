@@ -1,149 +1,163 @@
 <!DOCTYPE html>
-
 <html>
-  <head>
-    <meta charset="utf-8">
-    <style>
-        @media (prefers-color-scheme: dark) { 
-            body, textarea, input { 
-                background: rgb(35, 34, 43); 
-                color: rgb(251,251,254); 
+    <head>
+        <meta charset="utf-8">
+        <style>
+            @media (prefers-color-scheme: dark) { 
+                body { 
+                    background: rgb(35, 34, 43); 
+                    color: rgb(251,251,254); 
+                }
+                .option-section {
+                    background: #161b22 !important;
+                    color: #cbccc6 !important;
+                }
+                .title {
+                    background: #30363d !important;
+                    color: white !important;
+                }
+                .option-button {
+                    background: #30363d !important;
+                    color: white !important;
+                }
+                .option-button:hover {
+                    background: rgba(255,255,255,0.2) !important;
+                }
+                .option-button:active {
+                    background: rgba(255,255,255,0.3) !important;
+                }
+                .buttons .disabled {
+                    background: rgba(255,255,255,0.1) !important;
+                    color: rgba(255,255,255,0.3) !important;
+                }
             }
-            textarea, input, #blockedChannelLinks {
-                background: #161b22 !important;
-                color: #cbccc6 !important;
+            body {
+                margin: 16px 8px;
+                display: flex;
+            }
+            section {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 20px;
+            }
+            textarea {
+                border: none;
+                padding: 4px !important;
+            }
+            .option-section {
+                background: #d1dae6;
+                resize: none;
+                color: black;
+                padding: 12px;
             }
             .title {
-                background: #30363d !important;
-                color: white !important;
+                border: none;
+                padding: 8px;
+                background: #e9e9e9;
+            }
+            textarea:focus-visible {
+                outline: none !important;
+            }
+            .buttons {
+                display: flex;
+                justify-content: space-between;
+            }
+            button {
+                width: 33%;
+                border: 0;
+                border-radius: 0;
+                text-align: center;
+                padding: 8px;
+                cursor: pointer;
+                margin-top: 10px;
             }
             .option-button {
-                background: #30363d !important;
-                color: white !important;
-            }
-            .option-button:hover {
-                background: rgba(255,255,255,0.2) !important;
+                color: black;
+                background: #e9e9e9;
             }
             .option-button:active {
-                background: rgba(255,255,255,0.3) !important;
+                background: rgba(0,0,0,0.3);
             }
-            .buttons .disabled {
-                background: rgba(255,255,255,0.1) !important;
-                color: rgba(255,255,255,0.3) !important;
+            .option-button:hover {
+                background: rgba(0,0,0,0.2);
             }
-        }
-        body {
-            margin: 16px 8px;
-            display: flex;
-        }
-        section {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-        }
-        textarea, #blockedChannelLinks {
-            border: none;
-            background: #d1dae6;
-            resize: none;
-            padding: 4px;
-            color: black;
-        }
-        .title {
-            border: none;
-            padding: 8px;
-            background: #e9e9e9;
-        }
-        textarea:focus-visible {
-            outline: none !important;
-        }
-        .buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-        button {
-            width: 33%;
-            border: 0;
-            border-radius: 0;
-            text-align: center;
-            padding: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .option-button {
-            color: black;
-            background: #e9e9e9;
-        }
-        .option-button:active {
-            background: rgba(0,0,0,0.3);
-        }
-        .option-button:hover {
-            background: rgba(0,0,0,0.2);
-        }
-        #save {
-            color: white;
-            background: #0a84ff;
-        }
-        .title {
-            width: 100%;
-        }
-        .disabled {
-            background: rgba(0,0,0,0.1) !important;
-            color: rgba(0,0,0,0.3) !important;
-            cursor: default;
-        }
-    </style>
-  </head>
-
-<body>
-    <section>
-        <select id="filterOptions" class="title">
-            <option value="videoTitle">Blocked video titles</option>
-            <option value="channelName">Blocked channel names</option>
-            <option value="channelId">Blocked channel IDs</option>
-        </select>
-        <textarea id="videoTitle" rows="20" spellcheck="false" placeholder="Add your video title filters below"></textarea>
-        <textarea id="channelName" rows="20" spellcheck="false" placeholder="Add your channel name filters below"></textarea>
-        <textarea id="channelId" rows="20" spellcheck="false" placeholder="Add your channel ID filters below"></textarea>
-    </section>
-    <section>
-        <span class="title">Blocked channel links</span>
-        <div id="blockedChannelLinks">
-            <div>
-                <input type="checkbox" id="viewChannelOnYoutube" value="View channel on YouTube">
-                <label for="viewChannelOnYoutube">View channel on YouTube</label>
+            #save {
+                color: white;
+                background: #0a84ff;
+            }
+            .title {
+                width: 100%;
+            }
+            .disabled {
+                background: rgba(0,0,0,0.1) !important;
+                color: rgba(0,0,0,0.3) !important;
+                cursor: default;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <select id="filterOptions" class="title">
+                <option value="videoTitle">Blocked video titles</option>
+                <option value="channelName">Blocked channel names</option>
+                <option value="channelId">Blocked channel IDs</option>
+            </select>
+            <textarea id="videoTitle" class="option-section" rows="20" spellcheck="false" placeholder="Add your video title filters below"></textarea>
+            <textarea id="channelName" class="option-section" rows="20" spellcheck="false" placeholder="Add your channel name filters below"></textarea>
+            <textarea id="channelId" class="option-section" rows="20" spellcheck="false" placeholder="Add your channel ID filters below"></textarea>
+        </section>
+        <section>
+            <span class="title">Blocked channel links</span>
+            <div id="blockedChannelLinks" class="option-section">
+                <div>
+                    <input type="checkbox" id="viewChannelOnYoutube" value="View channel on YouTube">
+                    <label for="viewChannelOnYoutube">View channel on YouTube</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="switchInvidiousInstance" value="Switch Invidious Instance">
+                    <label for="switchInvidiousInstance">Switch Invidious Instance</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="shorts" value="Shorts">
+                    <label for="shorts">Shorts</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="community" value="Community">
+                    <label for="community">Community</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="livestreams" value="Livestreams">
+                    <label for="livestreams">Livestreams</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="playlists" value="Playlists">
+                    <label for="playlists">Playlists</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="releases" value="Releases">
+                    <label for="releases">Releases</label>
+                </div>
             </div>
-            <div>
-                <input type="checkbox" id="switchInvidiousInstance" value="Switch Invidious Instance">
-                <label for="switchInvidiousInstance">Switch Invidious Instance</label>
+        </section>
+        <section>
+            <span class="title">Other options</span>
+            <div class="option-section">
+                <div>
+                    <input type="checkbox" id="hideLoginButton">
+                    <label for="hideLoginButton">Hide login button</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="hideSearchFilters">
+                    <label for="hideSearchFilters">Hide search filters</label>
+                </div>
             </div>
-            <div>
-                <input type="checkbox" id="shorts" value="Shorts">
-                <label for="shorts">Shorts</label>
-            </div>
-            <div>
-                <input type="checkbox" id="community" value="Community">
-                <label for="community">Community</label>
-            </div>
-            <div>
-                <input type="checkbox" id="livestreams" value="Livestreams">
-                <label for="livestreams">Livestreams</label>
-            </div>
-            <div>
-                <input type="checkbox" id="playlists" value="Playlists">
-                <label for="playlists">Playlists</label>
-            </div>
-            <div>
-                <input type="checkbox" id="releases" value="Releases">
-                <label for="releases">Releases</label>
-            </div>
+        </section>
+        <div class="buttons">
+            <button id="save" class="disabled">Save</button>
+            <button id="import" class="option-button">Import</button>
+            <button id="export" class="option-button">Export</button>
+            <input id="importFile" type="file" accept="application/json" style="display: none">
         </div>
-    </section>
-    <div class="buttons">
-        <button id="save" class="disabled">Save</button>
-        <button id="import" class="option-button">Import</button>
-        <button id="export" class="option-button">Export</button>
-        <input id="importFile" type="file" accept="application/json" style="display: none">
-    </div>
-    <script src="options.js"></script>
-</body>
+        <script src="options.js"></script>
+    </body>
 </html>

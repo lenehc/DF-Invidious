@@ -1,13 +1,7 @@
 (async function() {
     let storageData = {
-        filterData: {
-            videoTitle: [],
-            channelName: [],
-            channelId: []
-        },
-        options: {
-            blockedChannelLinks: []
-        }
+        filterData: {},
+        options: {}
     }
 
     const filterNames = ['videoTitle', 'channelName', 'channelId'];
@@ -18,6 +12,36 @@
 
     await loadData();
     populateOptions();
+
+    let filterOptions = document.querySelector('#filterOptions');
+    showFilterEditor(filterOptions.value);
+
+    filterOptions.addEventListener('change', () => {
+        showFilterEditor(filterOptions.value);
+    });
+
+    document.querySelectorAll('textarea').forEach((elem) => {
+        elem.addEventListener('keyup', activateSaveButton)
+    });
+
+    document.querySelectorAll('input[type=checkbox]').forEach((elem) => {
+        elem.addEventListener('change', activateSaveButton)
+    });
+
+    document.getElementById('save').addEventListener('click', (evt) => {
+        if (evt.target.classList.contains('disabled')) return;
+        saveOptions();
+    });
+
+    document.getElementById('export').addEventListener('click', () => {
+        saveFile(storageData, 'df_invidious_options.json');
+    });
+
+    document.getElementById('import').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+    });
+    
+    document.getElementById('importFile').addEventListener('change', importOptions);
 
     function getElementsFromIds(ids) {
         elems = {};
@@ -63,6 +87,8 @@
         });
 
         storageData.options.blockedChannelLinks = Array.from(document.getElementById('blockedChannelLinks').querySelectorAll('input[type=checkbox]:checked')).map(e => e.value);
+        storageData.options.hideLoginButton = document.getElementById('hideLoginButton').checked;
+        storageData.options.hideSearchFilters = document.getElementById('hideSearchFilters').checked;
 
         await saveData();
     }
@@ -98,26 +124,10 @@
         Object.values(channelLinkCheckboxes).forEach((elem) => {
             elem.checked = blockedChannelLinks.includes(elem.value);
         });
+
+        document.getElementById('hideLoginButton').checked = get('options.hideLoginButton', false, obj);
+        document.getElementById('hideSearchFilters').checked = get('options.hideSearchFilters', false, obj);
     }
-
-    let filterOptions = document.querySelector('#filterOptions');
-    showFilterEditor(filterOptions.value);
-
-    filterOptions.addEventListener('change', () => {
-        showFilterEditor(filterOptions.value);
-    });
-
-    document.getElementById('save').addEventListener('click', (evt) => {
-        if (evt.target.classList.contains('disabled')) return;
-        saveOptions();
-    })
-
-
-    document.querySelectorAll('textarea, input[type=checkbox]').forEach((elem) => {
-        elem.addEventListener('change', () => {
-            document.getElementById('save').classList.remove('disabled');
-        })
-    })
 
     function showFilterEditor(filterName) {
         Object.values(filterEditors).forEach((filterEditor) => {
@@ -138,14 +148,7 @@
         }, 0);
     }
 
-    document.getElementById('export').addEventListener('click', () => {
-        saveFile(storageData, 'df_invidious_options.json');
-    })
-
-    document.getElementById('import').addEventListener('click', () => {
-        document.getElementById('importFile').click();
-    })
-    
-    document.getElementById('importFile').addEventListener('change', importOptions);
-
+    function activateSaveButton() {
+        document.getElementById('save').classList.remove('disabled');
+    }
 })();
