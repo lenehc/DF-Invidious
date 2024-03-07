@@ -64,7 +64,7 @@
 		    link.rel = 'stylesheet';
             link.type = 'text/css'
             link.media = 'screen,print';
-		    link.href = chrome.extension.getURL(file);
+		    link.href = chrome.extension.getURL('css/' + file);
 		    document.head.appendChild(link);
         }
     }
@@ -270,7 +270,7 @@
         title.classList.add('video-title');
         channel.classList.add('video-channel');
 
-        if (published) published.textContent = published.textContent.replace(/^\w+\s+/, '');
+        if (published && published.textContent.split(' ').length !== 3) published.textContent = published.textContent.replace(/^\w+\s+/, '');
         if (length) length.textContent = length.textContent.trim();
         if (isChannelPage) channel.style.display = 'none';
     }

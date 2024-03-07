@@ -133,7 +133,7 @@
         Object.values(filterEditors).forEach((filterEditor) => {
             filterEditor.style.display = 'none';
         });
-        document.getElementById(filterName).style.display = 'block';
+        document.getElementById(filterName).style.display = 'inline-block';
     }
 
     function saveFile(data, fileName) {

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="style.css">
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <main>
+            <header>DF Invidious</header>
+            <div id="contents">
+                <legend>Filters</legend>
+                <div class="option-group">
+                    <label for="filterOptions">Filter type:</label>
+                    <select id="filterOptions" class="title">
+                        <option value="videoTitle">Video title</option>
+                        <option value="channelName">Channel name</option>
+                        <option value="channelId">Channel ID</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>Contents:</label>
+                    <textarea id="videoTitle" class="option-section" rows="10" spellcheck="false" placeholder="Add your video title filters below"></textarea>
+                    <textarea id="channelName" class="option-section" rows="10" spellcheck="false" placeholder="Add your channel name filters below"></textarea>
+                    <textarea id="channelId" class="option-section" rows="10" spellcheck="false" placeholder="Add your channel ID filters below"></textarea>
+                </div>
+                <legend>Blocked channel links</legend>
+                <div id="blockedChannelLinks">
+                    <div class="option-group">
+                        <label for="viewChannelOnYoutube">View channel on YouTube:</label>
+                        <input type="checkbox" id="viewChannelOnYoutube" value="View channel on YouTube">
+                    </div>
+                    <div class="option-group">
+                        <label for="switchInvidiousInstance">Switch Invidious Instance:</label>
+                        <input type="checkbox" id="switchInvidiousInstance" value="Switch Invidious Instance">
+                    </div>
+                    <div class="option-group">
+                        <label for="shorts">Shorts:</label>
+                        <input type="checkbox" id="shorts" value="Shorts">
+                    </div>
+                    <div class="option-group">
+                        <label for="community">Community:</label>
+                        <input type="checkbox" id="community" value="Community">
+                    </div>
+                    <div class="option-group">
+                        <label for="livestreams">Livestreams:</label>
+                        <input type="checkbox" id="livestreams" value="Livestreams">
+                    </div>
+                    <div class="option-group">
+                        <label for="playlists">Playlists:</label>
+                        <input type="checkbox" id="playlists" value="Playlists">
+                    </div>
+                    <div class="option-group">
+                        <label for="releases">Releases:</label>
+                        <input type="checkbox" id="releases" value="Releases">
+                    </div>
+                </div>
+                <legend>Other options</legend>
+                <div class="option-group">
+                    <label for="hideLoginButton">Hide login button:</label>
+                    <input type="checkbox" id="hideLoginButton">
+                </div>
+                <div class="option-group">
+                    <label for="hideSearchFilters">Hide search filters:</label>
+                    <input type="checkbox" id="hideSearchFilters">
+                </div>
+                <div class="buttons">
+                    <button id="save" class="disabled">Save</button>
+                    <button id="import" class="option-button">Import</button>
+                    <button id="export" class="option-button">Export</button>
+                    <input id="importFile" type="file" accept="application/json" style="display: none">
+                </div>
+                <script src="options.js"></script>
+            </div>
+        </main>
+    </body>
+</html>

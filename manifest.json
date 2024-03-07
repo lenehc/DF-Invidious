@@ -38,13 +38,20 @@
         "*://yt.drgnz.club/*",
         "*://yt.oelrichsgarcia.de/*"
       ],
-      "js": ["df_invidious.js"]
+      "js": ["scripts/df_invidious.js"]
     }
   ],
   "permissions": [
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "options_ui": {
-    "page": "options.html"
-  }
+    "page": "ui/options.html",
+    "open_in_tab": true
+  },
+  "browser_action": {},
+  "background": {
+    "scripts":["scripts/background.js"]
+  },
+  "homepage_url": "https://github.com/lenehc/DF-Invidious"
 }

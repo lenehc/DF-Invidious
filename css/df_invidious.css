@@ -47,6 +47,9 @@ a {
 .icon-buttons, .ion-ios-arrow-forward, .ion-ios-play-circle::before, footer, .feed-menu, hr, #published-date, .pure-u-lg-1-5 .pure-control-group {
     display: none !important;
 }
+.pure-button:focus, .pure-button:hover {
+    background-image: none !important;
+}
 .pure-button.pure-button-secondary {
     border: none !important;
     margin: 0 !important;
@@ -55,13 +58,21 @@ a {
 }
 .pure-button.pure-button-secondary:hover {
     background-image: none !important;
-    background-color: transparent !important;
 }
 .light-theme .pure-button.pure-button-secondary:focus {
     background-color: transparent !important;
     color: black !important;
     border-color: transparent !important;
-    background-image: none !important;
+    background-color: transparent !important;
+}
+.pure-button-primary {
+    background-color: #e9e9e9 !important;
+    border: 0 !important;
+}
+.light-theme .pure-button-primary:hover, .light-theme .pure-button-primary:focus {
+    border: 0 !important;
+    background: rgba(0,0,0,0.2) !important;
+    color: black !important;
 }
 .channel-bio, .channel-title, .channel-banner, .video-info, .player-title {
     margin-bottom: 25px;
@@ -133,4 +144,7 @@ a {
 }
 a[title="Audio mode"], a[title="Video mode"] {
     margin-left: 10px;
+}
+.pure-form-aligned {
+    margin-bottom: 100px;
 }
